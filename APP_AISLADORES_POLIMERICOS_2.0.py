@@ -123,12 +123,23 @@ def construir_bloque_correcciones():
     if not st.session_state.correcciones:
         return ""
     recientes = st.session_state.correcciones[-12:]
-    ejemplos = "\n".join(
-    f"{i+1}. La IA había dicho: grado {c.get('ia_grado', '')} ({c.get('ia_tipo_dano', '')}). "
-    f"El experto corrigió a: grado {c.get('usuario_grado', '')} ({c.get('usuario_tipo_dano', '')}). "
-    f"{f'Nota: {c.get(\"observacion\")}' if c.get('observacion') and str(c.get('observacion')).strip() not in ('None', 'nan', '') else ''}"
-    for i, c in enumerate(recientes)
-)
+    lineas = []
+    for i, c in enumerate(recientes):
+        ia_g = c.get('ia_grado', '')
+        ia_d = c.get('ia_tipo_dano', '')
+        usr_g = c.get('usuario_grado', '')
+        usr_d = c.get('usuario_tipo_dano', '')
+        obs = c.get('observacion')
+        
+        texto_obs = ""
+        if obs is not None and str(obs).strip() not in ("", "None", "nan"):
+            texto_obs = f" Nota: {obs}"
+            
+        lineas.append(
+            f"{i+1}. La IA había dicho: grado {ia_g} ({ia_d}). "
+            f"El experto corrigió a: grado {usr_g} ({usr_d}).{texto_obs}"
+        )
+    ejemplos = "\n".join(lineas)
     return (
         "\n\nEl equipo ha corregido evaluaciones previas de la IA. Usa estos ejemplos "
         f"para ajustar tu criterio y no repetir los mismos errores:\n{ejemplos}"
