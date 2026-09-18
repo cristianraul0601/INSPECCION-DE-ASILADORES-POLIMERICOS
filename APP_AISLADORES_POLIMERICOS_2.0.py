@@ -124,11 +124,11 @@ def construir_bloque_correcciones():
         return ""
     recientes = st.session_state.correcciones[-12:]
     ejemplos = "\n".join(
-        f"{i+1}. La IA había dicho: grado {c['ia_grado']} ({c['ia_tipo_dano']}). "
-        f"El equipo corrigió a: grado {c['grado']} — {c['tipo_dano']}. "
-        f"{'Nota: ' + c['observacion'] if c.get('observacion') else ''}"
-        for i, c in enumerate(recientes)
-    )
+    f"{i+1}. La IA había dicho: grado {c.get('ia_grado', '')} ({c.get('ia_tipo_dano', '')}). "
+    f"El experto corrigió a: grado {c.get('usuario_grado', '')} ({c.get('usuario_tipo_dano', '')}). "
+    f"{f'Nota: {c.get(\"observacion\")}' if c.get('observacion') and str(c.get('observacion')).strip() not in ('None', 'nan', '') else ''}"
+    for i, c in enumerate(recientes)
+)
     return (
         "\n\nEl equipo ha corregido evaluaciones previas de la IA. Usa estos ejemplos "
         f"para ajustar tu criterio y no repetir los mismos errores:\n{ejemplos}"
