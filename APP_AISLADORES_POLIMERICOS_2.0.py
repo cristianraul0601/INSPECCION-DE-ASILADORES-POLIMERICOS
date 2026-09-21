@@ -105,7 +105,9 @@ if "correcciones" not in st.session_state:
 
 if "procesados" not in st.session_state:
     st.session_state.procesados = set(r["archivo"] for r in st.session_state.resultados)
-
+    
+if "imagenes_almacenadas" not in st.session_state:
+    st.session_state.imagenes_almacenadas = {}
 
 def guardar_resultados():
     pd.DataFrame(st.session_state.resultados).to_csv(
@@ -117,7 +119,11 @@ def guardar_correcciones():
     pd.DataFrame(st.session_state.correcciones).to_csv(
         CORRECCIONES_CSV, sep=';', index=False, encoding='utf-8-sig'
     )
-
+def exportar_a_excel(datos):
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        pd.DataFrame(datos).to_excel(writer, index=False, sheet_name='Diagnostico')
+    return output.getvalue()
 
 def construir_bloque_correcciones():
     if not st.session_state.correcciones:
@@ -235,6 +241,7 @@ if archivos:
     if nuevos:
         barra = st.progress(0, text="Analizando imágenes...")
         for i, archivo in enumerate(nuevos):
+            st.session_state.imagenes_almacenadas[archivo.name] = archivo.getvalue()
             img = optimizar_imagen(archivo)
             data = analizar_aislador(img)
             registro = {
@@ -265,8 +272,11 @@ else:
 
         col_img, col_info = st.columns([1, 5])
         with col_img:
-            if r["archivo"] in mapa_archivos:
-                st.image(mapa_archivos[r["archivo"]], width=90)
+                img_bytes = st.session_state.imagenes_almacenadas.get(r["archivo"])
+                if img_bytes:
+                    st.image(img_bytes, width=100)
+                    with st.popover("🔍 Ver"):
+                        st.image(img_bytes, caption=r["archivo"], use_container_width=True)
         with col_info:
             st.markdown(
                 f"**{r['archivo']}** &nbsp;"
@@ -314,21 +324,21 @@ st.divider()
 col1, col2 = st.columns(2)
 with col1:
     if st.session_state.resultados:
-        df_res = pd.DataFrame(st.session_state.resultados)
+        excel_res = exportar_a_excel(st.session_state.resultados)
         st.download_button(
-            "⬇️ Descargar resultados (CSV)",
-            df_res.to_csv(sep=';', index=False, encoding='utf-8-sig'),
-            file_name="resultados_diagnostico.csv",
-            mime="text/csv",
+            "⬇️ Descargar resultados (Excel)",
+            data=excel_res,
+            file_name="resultados_diagnostico.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
 with col2:
     if st.session_state.correcciones:
-        df_corr = pd.DataFrame(st.session_state.correcciones)
+        excel_corr = exportar_a_excel(st.session_state.correcciones)
         st.download_button(
-            "⬇️ Descargar correcciones (CSV)",
-            df_corr.to_csv(sep=';', index=False, encoding='utf-8-sig'),
-            file_name="correcciones_criterio_ia.csv",
-            mime="text/csv",
+            "⬇️ Descargar correcciones (Excel)",
+            data=excel_corr,
+            file_name="correcciones_criterio_ia.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
 
 st.caption(
