@@ -3,3 +3,4 @@ pandas
 pillow
 google-genai
 openpyxl
+st-gsheets-connection
