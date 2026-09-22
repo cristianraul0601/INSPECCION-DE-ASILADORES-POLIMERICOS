@@ -239,8 +239,16 @@ def analizar_aislador(img, max_intentos=4):
 # ──────────────────────────────────────────────────────────────────────────
 # INTERFAZ
 # ──────────────────────────────────────────────────────────────────────────
-st.title("🔌 Diagnóstico de aisladores poliméricos")
-st.caption("Mantenimiento AT — evaluación con IA según la guía del área")
+col_aislador, col_texto = st.columns([1, 5])
+with col_aislador:
+    st.image(
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Polymer_insulator_110kv.jpg/300px-Polymer_insulator_110kv.jpg",
+        caption="Aislador AT 110 kV",
+        use_container_width=True
+    )
+with col_texto:
+    st.title("⚡ Diagnóstico de aisladores poliméricos")
+    st.caption("Mantenimiento de Redes de Alta Tensión — Evaluación técnica con IA")
 
 n_corr = len(st.session_state.correcciones)
 if n_corr == 0:
