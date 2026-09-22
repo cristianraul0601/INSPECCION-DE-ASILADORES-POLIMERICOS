@@ -347,9 +347,8 @@ else:
                             
                             st.markdown("---")
 
-st.divider()
-col1, col2 = st.columns(2)
-with col1:
+with st.sidebar:
+    st.markdown("### 📥 Descargas")
     if st.session_state.resultados:
         excel_res = exportar_a_excel(st.session_state.resultados)
         st.download_button(
@@ -357,8 +356,8 @@ with col1:
             data=excel_res,
             file_name="resultados_diagnostico.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True,
         )
-with col2:
     if st.session_state.correcciones:
         excel_corr = exportar_a_excel(st.session_state.correcciones)
         st.download_button(
@@ -366,6 +365,7 @@ with col2:
             data=excel_corr,
             file_name="correcciones_criterio_ia.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            use_container_width=True,
         )
 
 st.caption(
