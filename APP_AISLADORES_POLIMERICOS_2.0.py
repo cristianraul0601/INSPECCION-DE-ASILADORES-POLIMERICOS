@@ -17,7 +17,10 @@ from streamlit_gsheets import GSheetsConnection
 # ──────────────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN
 # ──────────────────────────────────────────────────────────────────────────
-st.set_page_config(page_title="Diagnóstico de aisladores", page_icon="🔌", layout="wide")
+st.set_page_config(page_title="Diagnóstico de aisladores",
+                   page_icon="https://upload.wikimedia.org/wikipedia/commons/7/70/Banco_mundial_logo.jpg",
+                   layout="wide"
+                  )
 
 MODELO = "gemini-3.1-flash-lite"
 URL_APPSCRIPT ="https://script.google.com/macros/s/AKfycbx3mLvIF9rq1dhYzzDi5cO9wX_J8e-dWIfLIGoRrrmp0Cm9MxlxrCdwTtOE304LPFm7/exec"
@@ -355,6 +358,11 @@ else:
                             st.markdown("---")
 
 with st.sidebar:
+    st.image(
+        "https://upload.wikimedia.org/wikipedia/commons/7/70/Banco_mundial_logo.jpg",
+        use_container_width=True
+    )
+    st.markdown("---")
     st.markdown("### 📥 Descargas")
     if st.session_state.resultados:
         excel_res = exportar_a_excel(st.session_state.resultados)
