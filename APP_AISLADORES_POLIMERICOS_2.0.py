@@ -242,7 +242,7 @@ def analizar_aislador(img, max_intentos=4):
 col_aislador, col_texto = st.columns([1, 5])
 with col_aislador:
     st.image(
-        "aislador_banner.png",  # Pon aquí el nombre exacto de tu archivo
+        "aislador_banner.jpg",  # Pon aquí el nombre exacto de tu archivo
         caption="Aislador AT 110 kV",
         use_container_width=True
     )
