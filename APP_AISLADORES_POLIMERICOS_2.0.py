@@ -266,7 +266,8 @@ if archivos:
                 "observacion": data.get("observacion", ""),
             }
             st.session_state.resultados.append(registro)
-            st.session_state.procesados.add(archivo.name)
+            if registro.get("grado") != "ERROR" and registro.get("tipo_dano") != "ERROR_RESPUESTA":
+                st.session_state.procesados.add(archivo.name)
             barra.progress((i + 1) / len(nuevos), text=f"Analizando {archivo.name}...")
         guardar_resultados()
         barra.empty()
@@ -283,8 +284,8 @@ else:
     for idx, r in enumerate(reversed(st.session_state.resultados)):
         real_idx = len(st.session_state.resultados) - 1 - idx
         color = GRADO_COLOR.get(str(r["grado"]), "#8CA0B3")
-
         col_img, col_info = st.columns([1, 5])
+        
         with col_img:
                 img_bytes = st.session_state.imagenes_almacenadas.get(r["archivo"])
                 if img_bytes:
@@ -301,6 +302,15 @@ else:
             st.write(f"**{r['tipo_dano']}**")
             st.caption(r["accion"])
             st.write(r["observacion"])
+            # Botón para reintentar si dio error de API/servidor
+            if r.get("grado") == "ERROR" or r.get("tipo_dano") == "ERROR_RESPUESTA":
+                if st.button("🔄 Reintentar análisis", key=f"retry_{real_idx}_{r['archivo']}"):
+                    # 1. Elimina de procesados para que Streamlit acepte analizarlo de nuevo
+                    st.session_state.procesados.discard(r["archivo"])
+                    # 2. Quita el resultado fallido de la lista
+                    st.session_state.resultados.pop(real_idx)
+                    guardar_resultados()
+                    st.rerun()
 
             ya_corregido = any(c["archivo"] == r["archivo"] for c in st.session_state.correcciones)
             if ya_corregido:
