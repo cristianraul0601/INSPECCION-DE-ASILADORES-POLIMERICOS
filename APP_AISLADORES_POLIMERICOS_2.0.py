@@ -196,16 +196,35 @@ def clasificar_tipo_error(error_texto):
         return "SERVIDOR"
     return "OTRO"
 
-
+def generar_vistas_zoom(img_pil):
+    w, h = img_pil.size
+    # 1. Recorte central (cuerpo y faldas principales)
+    crop_centro = img_pil.crop((int(w * 0.15), int(h * 0.15), int(w * 0.85), int(h * 0.85)))
+    # 2. Recorte superior (herraje y platos altos)
+    crop_superior = img_pil.crop((int(w * 0.15), 0, int(w * 0.85), int(h * 0.55)))
+    # 3. Recorte inferior (herraje y platos bajos)
+    crop_inferior = img_pil.crop((int(w * 0.15), int(h * 0.45), int(w * 0.85), h))
+    return [img_pil, crop_centro, crop_superior, crop_inferior]
+  
 def analizar_aislador(img, max_intentos=4):
     ultimo_error = ""
     system_prompt = SYSTEM_INSTRUCTION + construir_bloque_correcciones()
+    
+    # Genera la vista completa y los 3 acercamientos detallados
+    vistas = generar_vistas_zoom(img)
+    
+    instruccion_zoom = (
+        "INSPECCIÓN MULTI-ZOOM: Se adjuntan la vista general y 3 acercamientos en alta resolución "
+        "del mismo aislador (zona central, superior e inferior). Examina minuciosamente los acercamientos "
+        "para detectar microfisuras, perforaciones, erosión, tizado o corrosión antes de determinar el grado.\n\n"
+        "Analiza este aislador polimérico y devuelve el JSON de diagnóstico:"
+    )
 
     for _ in range(max_intentos):
         try:
             response = client.models.generate_content(
                 model=MODELO,
-                contents=["Analiza este aislador polimérico y devuelve el JSON de diagnóstico:", img],
+                contents=[instruccion_zoom] + vistas,
                 config=types.GenerateContentConfig(
                     system_instruction=system_prompt,
                     response_mime_type="application/json",
