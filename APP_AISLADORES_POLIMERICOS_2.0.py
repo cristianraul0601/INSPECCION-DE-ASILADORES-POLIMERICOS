@@ -242,7 +242,7 @@ def analizar_aislador(img, max_intentos=4):
 col_aislador, col_texto = st.columns([1, 5])
 with col_aislador:
     st.image(
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Polymer_insulator_110kv.jpg/300px-Polymer_insulator_110kv.jpg",
+        "aislador_banner.png",  # Pon aquí el nombre exacto de tu archivo
         caption="Aislador AT 110 kV",
         use_container_width=True
     )
