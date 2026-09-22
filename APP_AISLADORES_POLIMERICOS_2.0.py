@@ -2,7 +2,7 @@ import os
 import json
 import time
 import base64
-import request
+import requests
 from io import BytesIO
 from datetime import datetime
 
@@ -315,26 +315,26 @@ else:
                         nuevo_tipo = st.text_input("Tipo de daño correcto", value=r["tipo_dano"])
                         nueva_accion = st.text_input("Acción correcta", value=r["accion"])
                         nota = st.text_area("Nota para la IA (opcional)")
-         if st.form_submit_button("Guardar corrección"):
-            nueva_fila = {
-                "archivo": r["archivo"],
-                "ia_grado": r["grado"],
-                "ia_tipo_dano": r["tipo_dano"],
-                "grado": nuevo_grado,
-                "tipo_dano": nuevo_tipo,
-                "accion": nueva_accion,
-                "observacion": nota,
-                "fecha": datetime.now().isoformat(timespec="seconds"),
-            }
-            st.session_state.correcciones.append(nueva_fila)
-            st.session_state.resultados[real_idx]["grado"] = nuevo_grado
-            st.session_state.resultados[real_idx]["tipo_dano"] = nuevo_tipo
-            st.session_state.resultados[real_idx]["accion"] = nueva_accion
-            guardar_resultados()
-            guardar_correcciones(nueva_fila)
-            st.rerun()
-
-st.markdown("---")
+                        if st.form_submit_button("Guardar corrección"):
+                            nueva_fila = {
+                                "archivo": r["archivo"],
+                                "ia_grado": r["grado"],
+                                "ia_tipo_dano": r["tipo_dano"],
+                                "grado": nuevo_grado,
+                                "tipo_dano": nuevo_tipo,
+                                "accion": nueva_accion,
+                                "observacion": nota,
+                                "fecha": datetime.now().isoformat(timespec="seconds"),
+                            }
+                            st.session_state.correcciones.append(nueva_fila)
+                            st.session_state.resultados[real_idx]["grado"] = nuevo_grado
+                            st.session_state.resultados[real_idx]["tipo_dano"] = nuevo_tipo
+                            st.session_state.resultados[real_idx]["accion"] = nueva_accion
+                            guardar_resultados()
+                            guardar_correcciones(nueva_fila)
+                            st.rerun()
+                            
+                            st.markdown("---")
 
 st.divider()
 col1, col2 = st.columns(2)
