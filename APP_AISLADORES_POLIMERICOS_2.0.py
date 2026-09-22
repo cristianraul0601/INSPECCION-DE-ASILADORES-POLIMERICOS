@@ -10,6 +10,7 @@ import pandas as pd
 from PIL import Image
 from google import genai
 from google.genai import types
+from streamlit_gsheets import GSheetsConnection
 
 # ──────────────────────────────────────────────────────────────────────────
 # CONFIGURACIÓN
@@ -97,11 +98,19 @@ if "resultados" not in st.session_state:
         RESULTADOS_CSV, ["archivo", "grado", "tipo_dano", "accion", "observacion"]
     )
 
+conn = st.connection("gsheets", type=GSheetsConnection)
+
+def cargar_correcciones_gsheet():
+    try:
+        df = conn.read(ttl="0s")
+        if df is not None and not df.empty:
+            return df.dropna(how="all").to_dict("records")
+    except Exception:
+        pass
+    return []
+
 if "correcciones" not in st.session_state:
-    st.session_state.correcciones = cargar_csv(
-        CORRECCIONES_CSV,
-        ["archivo", "ia_grado", "ia_tipo_dano", "grado", "tipo_dano", "accion", "observacion", "fecha"],
-    )
+    st.session_state.correcciones = cargar_correcciones_gsheet()
 
 if "procesados" not in st.session_state:
     st.session_state.procesados = set(r["archivo"] for r in st.session_state.resultados)
@@ -116,9 +125,13 @@ def guardar_resultados():
 
 
 def guardar_correcciones():
-    pd.DataFrame(st.session_state.correcciones).to_csv(
-        CORRECCIONES_CSV, sep=';', index=False, encoding='utf-8-sig'
-    )
+    if st.session_state.correcciones:
+        try:
+            df = pd.DataFrame(st.session_state.correcciones)
+            conn.update(data=df)
+        except Exception as e:
+            st.error(f"Error al sincronizar con Google Sheets: {e}")
+            
 def exportar_a_excel(datos):
     output = BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
