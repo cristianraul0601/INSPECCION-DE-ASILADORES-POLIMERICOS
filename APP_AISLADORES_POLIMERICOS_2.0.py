@@ -142,7 +142,7 @@ def exportar_a_excel(datos):
 def construir_bloque_correcciones():
     if not st.session_state.correcciones:
         return ""
-    recientes = st.session_state.correcciones[-12:]
+    recientes = st.session_state.correcciones[-30:]
     lineas = []
     for i, c in enumerate(recientes):
         ia_g = c.get('ia_grado', '')
@@ -325,25 +325,32 @@ else:
                         )
                         nuevo_tipo = st.text_input("Tipo de daño correcto", value=r["tipo_dano"])
                         nueva_accion = st.text_input("Acción correcta", value=r["accion"])
-                        nota = st.text_area("Nota para la IA (opcional)")
+                        nota = st.text_area(
+                            "⚠️ Nota técnica para la IA (Obligatoria)",
+                            placeholder="Ej: 'Fisura transversal en falda superior', 'Solo polvo superficial sin daño', 'Tizado blanco avanzado'.",
+                            help="Describe el rasgo visual observado para que la IA aprenda el criterio del equipo.",
+                        )
                         if st.form_submit_button("Guardar corrección"):
-                            nueva_fila = {
-                                "archivo": r["archivo"],
-                                "ia_grado": r["grado"],
-                                "ia_tipo_dano": r["tipo_dano"],
-                                "grado": nuevo_grado,
-                                "tipo_dano": nuevo_tipo,
-                                "accion": nueva_accion,
-                                "observacion": nota,
-                                "fecha": datetime.now(ZoneInfo("America/Lima")).strftime("%Y-%m-%d %H:%M:%S"),
-                            }
-                            st.session_state.correcciones.append(nueva_fila)
-                            st.session_state.resultados[real_idx]["grado"] = nuevo_grado
-                            st.session_state.resultados[real_idx]["tipo_dano"] = nuevo_tipo
-                            st.session_state.resultados[real_idx]["accion"] = nueva_accion
-                            guardar_resultados()
-                            guardar_correcciones(nueva_fila)
-                            st.rerun()
+                            if not nota.strip():
+                                st.warning("⚠️ Por favor escribe una nota describiendo el daño observado antes de guardar.")
+                            else:
+                                nueva_fila = {
+                                    "archivo": r["archivo"],
+                                    "ia_grado": r["grado"],
+                                    "ia_tipo_dano": r["tipo_dano"],
+                                    "grado": nuevo_grado,
+                                    "tipo_dano": nuevo_tipo,
+                                    "accion": nueva_accion,
+                                    "observacion": nota,
+                                    "fecha": datetime.now(ZoneInfo("America/Lima")).strftime("%Y-%m-%d %H:%M:%S"),
+                                }
+                                st.session_state.correcciones.append(nueva_fila)
+                                st.session_state.resultados[real_idx]["grado"] = nuevo_grado
+                                st.session_state.resultados[real_idx]["tipo_dano"] = nuevo_tipo
+                                st.session_state.resultados[real_idx]["accion"] = nueva_accion
+                                guardar_resultados()
+                                guardar_correcciones(nueva_fila)
+                                st.rerun()
                             
                             st.markdown("---")
 
