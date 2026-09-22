@@ -146,8 +146,9 @@ def construir_bloque_correcciones():
     for i, c in enumerate(recientes):
         ia_g = c.get('ia_grado', '')
         ia_d = c.get('ia_tipo_dano', '')
-        usr_g = c.get('usuario_grado', '')
-        usr_d = c.get('usuario_tipo_dano', '')
+        # Se usan los nombres originales de tu hoja: 'grado' y 'tipo_dano'
+        usr_g = c.get('grado', c.get('usuario_grado', ''))
+        usr_d = c.get('tipo_dano', c.get('usuario_tipo_dano', ''))
         obs = c.get('observacion')
         
         texto_obs = ""
