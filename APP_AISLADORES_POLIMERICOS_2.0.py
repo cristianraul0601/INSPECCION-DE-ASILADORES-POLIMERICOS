@@ -239,7 +239,7 @@ def analizar_aislador(img, max_intentos=4):
 # ──────────────────────────────────────────────────────────────────────────
 # INTERFAZ
 # ──────────────────────────────────────────────────────────────────────────
-col_aislador, col_texto = st.columns([1, 5])
+col_aislador, col_texto = st.columns([1, 1])
 with col_aislador:
     st.image(
         "aislador_banner.jpg",  # Pon aquí el nombre exacto de tu archivo
