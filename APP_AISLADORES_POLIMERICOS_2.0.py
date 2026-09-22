@@ -5,6 +5,7 @@ import base64
 import requests
 from io import BytesIO
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import streamlit as st
 import pandas as pd
@@ -334,7 +335,7 @@ else:
                                 "tipo_dano": nuevo_tipo,
                                 "accion": nueva_accion,
                                 "observacion": nota,
-                                "fecha": datetime.now().isoformat(timespec="seconds"),
+                                "fecha": datetime.now(ZoneInfo("America/Lima")).strftime("%Y-%m-%d %H:%M:%S"),
                             }
                             st.session_state.correcciones.append(nueva_fila)
                             st.session_state.resultados[real_idx]["grado"] = nuevo_grado
