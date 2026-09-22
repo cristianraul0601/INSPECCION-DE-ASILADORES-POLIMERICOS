@@ -241,11 +241,16 @@ def analizar_aislador(img, max_intentos=4):
 # ──────────────────────────────────────────────────────────────────────────
 col_aislador, col_texto = st.columns([1, 1])
 with col_aislador:
-    st.image(
-        "aislador_banner.jpg",  # Pon aquí el nombre exacto de tu archivo
-        caption="Aislador AT 110 kV",
-        use_container_width=True
-    )
+    # Muestra la imagen a todo lo ancho de la página
+st.image(
+    "aislador_banner.jpg",
+    caption="Aislador AT 110 kV",
+    use_container_width=True
+)
+
+# Título y subtítulo centrado debajo
+st.markdown("<h1 style='text-align: center;'>⚡ Diagnóstico de aisladores poliméricos</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Mantenimiento de Redes de Alta Tensión — Evaluación técnica con IA</p>", unsafe_allow_html=True)
 with col_texto:
     st.title("⚡ Diagnóstico de aisladores poliméricos")
     st.caption("Mantenimiento de Redes de Alta Tensión — Evaluación técnica con IA")
