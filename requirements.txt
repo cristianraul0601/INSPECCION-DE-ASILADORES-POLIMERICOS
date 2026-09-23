@@ -4,3 +4,4 @@ pillow
 google-genai
 openpyxl
 st-gsheets-connection
+pyarrow==24.0.0
