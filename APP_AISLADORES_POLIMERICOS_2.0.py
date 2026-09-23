@@ -206,13 +206,10 @@ def generar_vistas_zoom(img_pil):
     crop_inferior = img_pil.crop((int(w * 0.15), int(h * 0.45), int(w * 0.85), h))
     return [img_pil, crop_centro, crop_superior, crop_inferior]
   
-def analizar_aislador(img, max_intentos=4):
+def analizar_aislador(img, max_intentos=2):
     ultimo_error = ""
     system_prompt = SYSTEM_INSTRUCTION + construir_bloque_correcciones()
-    
-    # Genera la vista completa y los 3 acercamientos detallados
     vistas = generar_vistas_zoom(img)
-    
     instruccion_zoom = (
         "INSPECCIÓN MULTI-ZOOM: Se adjuntan la vista general y 3 acercamientos en alta resolución "
         "del mismo aislador (zona central, superior e inferior). Examina minuciosamente los acercamientos "
@@ -220,37 +217,34 @@ def analizar_aislador(img, max_intentos=4):
         "Analiza este aislador polimérico y devuelve el JSON de diagnóstico:"
     )
 
-    for _ in range(max_intentos):
-        try:
-            response = client.models.generate_content(
-                model=MODELO,
-                contents=[instruccion_zoom] + vistas,
-                config=types.GenerateContentConfig(
-                    system_instruction=system_prompt,
-                    response_mime_type="application/json",
-                ),
-            )
-            return json.loads(response.text)
-        except Exception as e:
-            ultimo_error = str(e)
-            tipo = clasificar_tipo_error(ultimo_error)
+    # 1° Tu modelo actual (3.1 flash-lite), 2° Respaldo 2.0 Flash, 3° Respaldo final 1.5 Flash
+    modelos_a_probar = [MODELO, "gemini-2.0-flash", "gemini-1.5-flash"]
 
-            if tipo == "MODELO_INVALIDO":
-                st.error(f"El modelo '{MODELO}' no existe o fue retirado por Google. Revisa la variable MODELO.")
-                st.stop()
-            elif tipo == "CUOTA_DIARIA":
-                break
-            elif tipo == "CUOTA_MINUTO":
-                time.sleep(20)
-            elif tipo == "SERVIDOR":
-                time.sleep(8)
-            else:
-                time.sleep(4)
-
+    for mod in modelos_a_probar:
+        for _ in range(max_intentos):
+            try:
+                response = client.models.generate_content(
+                    model=mod,
+                    contents=[instruccion_zoom] + vistas,
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_prompt,
+                        response_mime_type="application/json",
+                    ),
+                )
+                return json.loads(response.text)
+            except Exception as e:
+                ultimo_error = str(e)
+                tipo = clasificar_tipo_error(ultimo_error)
+                if tipo == "CUOTA_DIARIA":
+                    break
+                # Si el modelo está saturado (503) o en espera, pausa breve y prueba siguiente
+                time.sleep(1)
+                continue
+              
     return {
         "grado": "ERROR",
         "tipo_dano": "ERROR_RESPUESTA",
-        "accion": "REINTENTAR",
+        "accion_recomendada": "REINTENTAR",
         "observacion": f"Detalle: {ultimo_error[:200]}",
     }
 
