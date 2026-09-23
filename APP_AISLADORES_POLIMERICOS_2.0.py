@@ -217,8 +217,8 @@ def analizar_aislador(img, max_intentos=2):
         "Analiza este aislador polimérico y devuelve el JSON de diagnóstico:"
     )
 
-    # 1° Tu modelo actual (3.1 flash-lite), 2° Respaldo 2.0 Flash; 3° Respaldo 2.0 Flash Lite
-    modelos_a_probar = [MODELO, "gemini-2.0-flash","gemini-2.0-flash-lite"]
+    # 1° Tu modelo actual (3.1 flash-lite), 2° Respaldo 2.0 Flash
+    modelos_a_probar = [MODELO, "gemini-2.0-flash"]
 
     for mod in modelos_a_probar:
         for _ in range(max_intentos):
