@@ -198,13 +198,17 @@ def clasificar_tipo_error(error_texto):
 
 def generar_vistas_zoom(img_pil):
     w, h = img_pil.size
-    # 1. Recorte central (cuerpo y faldas principales)
     crop_centro = img_pil.crop((int(w * 0.15), int(h * 0.15), int(w * 0.85), int(h * 0.85)))
-    # 2. Recorte superior (herraje y platos altos)
-    crop_superior = img_pil.crop((int(w * 0.15), 0, int(w * 0.85), int(h * 0.55)))
-    # 3. Recorte inferior (herraje y platos bajos)
-    crop_inferior = img_pil.crop((int(w * 0.15), int(h * 0.45), int(w * 0.85), h))
-    return [img_pil, crop_centro, crop_superior, crop_inferior]
+    crop_sup = img_pil.crop((int(w * 0.15), 0, int(w * 0.85), int(h * 0.55)))
+    crop_inf = img_pil.crop((int(w * 0.15), int(h * 0.45), int(w * 0.85), h))
+
+    # Redimensionar para reducir consumo masivo de tokens
+    vistas = [img_pil.copy(), crop_centro, crop_sup, crop_inf]
+    optimizadas = []
+    for v in vistas:
+        v.thumbnail((600, 600))
+        optimizadas.append(v)
+    return optimizadas
   
 def analizar_aislador(img, max_intentos=2):
     ultimo_error = ""
@@ -217,7 +221,7 @@ def analizar_aislador(img, max_intentos=2):
         "Analiza este aislador polimérico y devuelve el JSON de diagnóstico:"
     )
 
-    # 1° Tu modelo actual (3.1 flash-lite), 2° Respaldo 2.0 Flash
+    # 1° Tu modelo actual, 2° Respaldo 3.6 Flash
     modelos_a_probar = [MODELO, "gemini-3.6-flash"]
 
     for mod in modelos_a_probar:
@@ -237,10 +241,13 @@ def analizar_aislador(img, max_intentos=2):
                 tipo = clasificar_tipo_error(ultimo_error)
                 if tipo == "CUOTA_DIARIA":
                     break
-                # Si el modelo está saturado (503) o en espera, pausa breve y prueba siguiente
-                time.sleep(1)
+                # Si es límite por minuto (429), pausar 10s para enfriar la cuota
+                if "429" in ultimo_error or "resource_exhausted" in ultimo_error.lower():
+                    time.sleep(10)
+                else:
+                    time.sleep(2)
                 continue
-              
+
     return {
         "grado": "ERROR",
         "tipo_dano": "ERROR_RESPUESTA",
