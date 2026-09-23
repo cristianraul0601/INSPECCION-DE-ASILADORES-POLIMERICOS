@@ -218,7 +218,7 @@ def analizar_aislador(img, max_intentos=2):
     )
 
     # 1° Tu modelo actual (3.1 flash-lite), 2° Respaldo 2.0 Flash
-    modelos_a_probar = [MODELO, "gemini-2.5-flash"]
+    modelos_a_probar = [MODELO, "gemini-3.6-flash"]
 
     for mod in modelos_a_probar:
         for _ in range(max_intentos):
